@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
 from flask import Flask, request, render_template, redirect, url_for
 from werkzeug.utils import secure_filename
 from script import *
@@ -30,12 +31,12 @@ def index():
 
 @app.route('/map', methods=['GET'])
 def map():
-    file = request.args['filename']
-    if not file:
-        return redirect(url_for('index'))
-    data = ''
-    # data = image_to_text(app.config['UPLOAD_FOLDER'] + '/' + file)
-    return render_template('text.html', data=data)
+    try:
+        file = request.args['filename']
+    except:
+        return render_template('map.html')
+    data = {'data': agr_to_obj(app.config['UPLOAD_FOLDER'] + '/' + file)}
+    return render_template('map.html', data=data)
 
 
 if __name__ == '__main__':
