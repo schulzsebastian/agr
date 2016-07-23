@@ -35,9 +35,8 @@
     $.when(self.objects).done(function(){
       self.plots = L.featureGroup(self.objects).addTo(self.map)
       self.map.fitBounds(self.plots.getBounds())
-      self.overlayMaps = {
-        'Działki': self.plots
-      }
+      self.overlayMaps = {}
+      self.overlayMaps[self.data.name + ' [' +self.data.data.length+ ']'] = self.plots
       self.baseMaps = {
         'OSM': self.osm,
         'Google Maps': self.googleMaps,

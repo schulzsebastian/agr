@@ -35,8 +35,9 @@ def map():
         file = request.args['filename']
     except:
         return render_template('map.html')
-    data = {'data': agr_to_obj(app.config['UPLOAD_FOLDER'] + '/' + file)}
-    return render_template('map.html', data=data)
+    data = agr_to_obj(app.config['UPLOAD_FOLDER'] + '/' + file)
+    response = {'name': data[0], 'data': data[1]}
+    return render_template('map.html', data=response)
 
 
 if __name__ == '__main__':
