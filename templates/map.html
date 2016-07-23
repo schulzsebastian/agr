@@ -20,19 +20,31 @@
     self.objects = []
 
     self.map = L.map('map').setView([52.482780222078226, 18.676757812500004], 5);
-    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    {attribution: '&copy; <a href="http://osm.org/copyright" title="OpenStreetMap" target="_blank">OpenStreetMap</a>'})
-    .addTo(self.map);
+    self.osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(self.map);
+    self.googleMaps = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{subdomains:['mt0','mt1','mt2','mt3']});
+    self.googleSatellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{subdomains:['mt0','mt1','mt2','mt3']});
+    self.esriWorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
 
     self.data.data.forEach(function(plot){
       var area = plot.polygon
       var popupContent = '<table id=\"attributes\"><tr><td><strong>nazwa atrybutu</strong></td><td><strong>wartość</strong></td></tr>'
       popupContent += '<tr><td>nr działki</td><td>'+plot.nr_dzialki+'</td></tr>'
       popupContent += '<tr><td>litera działki</td><td>'+plot.litera_dzialki+'</td></tr>'
-      self.objects.push(L.polygon(area).bindPopup(popupContent).addTo(self.map))
+      self.objects.push(L.polygon(area).bindPopup(popupContent))
     })
     $.when(self.objects).done(function(){
-      self.map.fitBounds(L.featureGroup(self.objects).getBounds())
+      self.plots = L.featureGroup(self.objects).addTo(self.map)
+      self.map.fitBounds(self.plots.getBounds())
+      self.overlayMaps = {
+        'Działki': self.plots
+      }
+      self.baseMaps = {
+        'OSM': self.osm,
+        'Google Maps': self.googleMaps,
+        'Google Satellite': self.googleSatellite,
+        'Esri WorldImagery': self.esriWorldImagery,
+      }
+      L.control.layers(self.baseMaps, self.overlayMaps).addTo(self.map);
     })
   };
   var vm = new mapModel();
