@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import json
 from flask import Flask, request, render_template, redirect, url_for
 from werkzeug.utils import secure_filename
 from script import *

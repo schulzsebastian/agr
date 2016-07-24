@@ -25,14 +25,17 @@
     self.googleSatellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{subdomains:['mt0','mt1','mt2','mt3']});
     self.esriWorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
 
-    self.data.data.forEach(function(plot){
-      var area = plot.polygon
-      var popupContent = '<table id=\"attributes\"><tr><td><strong>nazwa atrybutu</strong></td><td><strong>wartość</strong></td></tr>'
-      popupContent += '<tr><td>nr działki</td><td>'+plot.nr_dzialki+'</td></tr>'
-      popupContent += '<tr><td>litera działki</td><td>'+plot.litera_dzialki+'</td></tr>'
-      self.objects.push(L.polygon(area).bindPopup(popupContent))
-    })
-    $.when(self.objects).done(function(){
+    self.makePolygons = function(){
+      self.data.data.forEach(function(plot){
+        var area = plot.polygon
+        var popupContent = '<table id=\"attributes\"><tr><td><strong>nazwa atrybutu</strong></td><td><strong>wartość</strong></td></tr>'
+        popupContent += '<tr><td>nr działki</td><td>'+plot.nr_dzialki+'</td></tr>'
+        popupContent += '<tr><td>litera działki</td><td>'+plot.litera_dzialki+'</td></tr>'
+        self.objects.push(L.polygon(area).bindPopup(popupContent))
+      })
+      self.createLayerControl()
+    }
+    self.createLayerControl = function(){
       self.plots = L.featureGroup(self.objects).addTo(self.map)
       self.map.fitBounds(self.plots.getBounds())
       self.overlayMaps = {}
@@ -44,7 +47,9 @@
         'Esri WorldImagery': self.esriWorldImagery,
       }
       L.control.layers(self.baseMaps, self.overlayMaps).addTo(self.map);
-    })
+    }
+
+    self.makePolygons()
   };
   var vm = new mapModel();
   ko.applyBindings(vm);
