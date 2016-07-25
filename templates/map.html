@@ -18,6 +18,7 @@
     var self = this;
     self.data = JSON.parse('{{ data|tojson|safe }}')
     self.objects = []
+    self.position = ''
 
     self.map = L.map('map').setView([52.482780222078226, 18.676757812500004], 5);
     self.osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(self.map);
@@ -48,8 +49,36 @@
       }
       L.control.layers(self.baseMaps, self.overlayMaps).addTo(self.map);
     }
+    self.showErrors = function(error){
+      if(error.code == 1){
+         console.log("Access is denied!");
+      }else if(error.code == 2){
+         console.log("Position is unavailable!");
+      }
+    }
+    self.broadcastLocation = function(position){
+      var coords = [position.coords.latitude, position.coords.longitude]
+      var acc = position.coords.accuracy
+      if(self.position){
+        self.map.removeLayer(self.position)
+      }
+      self.position = L.circle(coords, acc, {
+        color: 'red',
+        fillColor: '#f03',
+        fillOpacity: 0.5
+      }).addTo(self.map);
+      return false
+    }
+    self.locate = function(){
+      if(navigator.geolocation){
+        navigator.geolocation.watchPosition(self.broadcastLocation, self.showErrors, {maximumAge:30000, enableHighAccuracy: true});
+      }else{
+        console.log("What the fuck is wrong with this browser?")
+      }
+    }
 
     self.makePolygons()
+    self.locate()
   };
   var vm = new mapModel();
   ko.applyBindings(vm);
